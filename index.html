@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌍 World Time Clock</title>
+  <title>🕰️ World Time Clock</title>
 
   <style>
     * {
@@ -13,8 +13,8 @@
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to bottom, #4facfe, #00f2fe);
+      font-family: 'Courier New', Courier, monospace;
+      background: #000;
       color: #fff;
       padding: 20px;
       display: flex;
@@ -22,7 +22,7 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      transition: background 0.5s ease;
+      transition: background 0.5s ease, color 0.5s ease;
     }
 
     header {
@@ -30,7 +30,7 @@
       justify-content: space-between;
       width: 100%;
       padding: 10px 20px;
-      background: rgba(0, 0, 0, 0.3);
+      background: #222;
       border-radius: 10px;
       margin-bottom: 20px;
       position: fixed;
@@ -39,17 +39,18 @@
     }
 
     button {
-      background: #6200ea;
-      border: none;
+      background: #fff;
+      border: 2px solid #fff;
       padding: 10px 15px;
       border-radius: 5px;
       cursor: pointer;
-      color: white;
-      transition: background 0.3s ease;
+      color: #000;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     button:hover {
-      background: #3700b3;
+      background: #000;
+      color: #fff;
     }
 
     .grid-container {
@@ -62,46 +63,30 @@
     }
 
     .clock-card {
-      background: #1a237e;
+      background: #111;
       padding: 20px;
       border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
       text-align: center;
       transition: transform 0.3s ease, background 0.5s ease;
     }
 
     .clock-card:hover {
       transform: translateY(-10px);
-      background: #283593;
-    }
-
-    .dark-mode {
-      background: #121212;
-      color: #e0e0e0;
-    }
-
-    .dark-mode header {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .dark-mode button {
-      background: #bb86fc;
-    }
-
-    .dark-mode button:hover {
-      background: #3700b3;
+      background: #333;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>🌍 World Time Clock</h1>
+    <h1>🕰️ World Time Clock</h1>
     <button id="toggleFormat" aria-label="Toggle Time Format">24h</button>
-    <button id="themeToggle" aria-label="Toggle Dark Mode">🌙</button>
   </header>
 
-  <main id="clockContainer" class="grid-container"></main>
+  <main id="clockContainer" class="grid-container">
+    <!-- Time Zone Cards will be inserted here -->
+  </main>
 
   <script>
     const timeZones = [
@@ -109,26 +94,18 @@
       { name: "Los Angeles", timeZone: "America/Los_Angeles" },
       { name: "Chicago", timeZone: "America/Chicago" },
       { name: "London", timeZone: "Europe/London" },
-      { name: "GMT", timeZone: "GMT" },
-      { name: "Delhi", timeZone: "Asia/Kolkata" }
+      { name: "Delhi", timeZone: "Asia/Kolkata" },
+      { name: "Tokyo", timeZone: "Asia/Tokyo" }
     ];
 
     let is24Hour = true;
-    let isDarkMode = false;
 
     document.getElementById("toggleFormat").addEventListener("click", toggleTimeFormat);
-    document.getElementById("themeToggle").addEventListener("click", toggleTheme);
 
     function toggleTimeFormat() {
       is24Hour = !is24Hour;
       document.getElementById("toggleFormat").textContent = is24Hour ? "24h" : "12h";
       updateClocks();
-    }
-
-    function toggleTheme() {
-      isDarkMode = !isDarkMode;
-      document.body.classList.toggle("dark-mode", isDarkMode);
-      document.getElementById("themeToggle").textContent = isDarkMode ? "☀️" : "🌙";
     }
 
     function updateClocks() {
@@ -137,27 +114,31 @@
       container.innerHTML = "";
 
       timeZones.forEach(({ name, timeZone }) => {
-        const formatter = new Intl.DateTimeFormat("en-US", {
+        const time = new Date().toLocaleString("en-US", {
           timeZone,
           hour: is24Hour ? "2-digit" : "numeric",
           minute: "2-digit",
           second: "2-digit",
-          hour12: !is24Hour,
+          weekday: "short",
+          year: "numeric",
+          month: "short",
+          day: "numeric"
         });
-
-        const dateTime = formatter.format(now);
 
         const card = `
           <div class="clock-card" aria-label="Time in ${name}">
             <h4>${name}</h4>
-            <p>${dateTime}</p>
+            <p>${time}</p>
           </div>
         `;
         container.insertAdjacentHTML("beforeend", card);
       });
+
+      // Schedule the next update precisely at the start of the next second
+      setTimeout(updateClocks, 1000 - now.getMilliseconds());
     }
 
-    setInterval(updateClocks, 1000);
+    // Initial call to start the clock
     updateClocks();
   </script>
 
