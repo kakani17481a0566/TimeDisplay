@@ -6,7 +6,6 @@
   <title>🌍 World Time Clock</title>
 
   <style>
-    /* Reset */
     * {
       margin: 0;
       padding: 0;
@@ -76,7 +75,6 @@
       background: #283593;
     }
 
-    /* Dark Mode */
     .dark-mode {
       background: #121212;
       color: #e0e0e0;
@@ -92,7 +90,7 @@
 
     .dark-mode button:hover {
       background: #3700b3;
-    } /* Fixed missing closing brace here */
+    }
   </style>
 </head>
 <body>
@@ -103,18 +101,16 @@
     <button id="themeToggle" aria-label="Toggle Dark Mode">🌙</button>
   </header>
 
-  <main id="clockContainer" class="grid-container">
-    <!-- Time Zone Cards will be inserted here -->
-  </main>
+  <main id="clockContainer" class="grid-container"></main>
 
   <script>
     const timeZones = [
-      { name: "EST", offset: -5 },
-      { name: "PST", offset: -8 },
-      { name: "CST", offset: -6 },
-      { name: "EDT", offset: -4 },
-      { name: "GMT", offset: 0 },
-      { name: "IST", offset: 5.5 }
+      { name: "New York", timeZone: "America/New_York" },
+      { name: "Los Angeles", timeZone: "America/Los_Angeles" },
+      { name: "Chicago", timeZone: "America/Chicago" },
+      { name: "London", timeZone: "Europe/London" },
+      { name: "GMT", timeZone: "GMT" },
+      { name: "Delhi", timeZone: "Asia/Kolkata" }
     ];
 
     let is24Hour = true;
@@ -140,17 +136,21 @@
       const container = document.getElementById("clockContainer");
       container.innerHTML = "";
 
-      timeZones.forEach(({ name, offset }) => {
-        const time = new Date(now.getTime() + offset * 3600000);
-        const formattedTime = is24Hour
-          ? time.toLocaleTimeString("en-US", { hour12: false })
-          : time.toLocaleTimeString("en-US", { hour12: true });
-        const formattedDate = time.toLocaleDateString();
+      timeZones.forEach(({ name, timeZone }) => {
+        const formatter = new Intl.DateTimeFormat("en-US", {
+          timeZone,
+          hour: is24Hour ? "2-digit" : "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: !is24Hour,
+        });
+
+        const dateTime = formatter.format(now);
 
         const card = `
           <div class="clock-card" aria-label="Time in ${name}">
             <h4>${name}</h4>
-            <p>${formattedDate} ${formattedTime}</p>
+            <p>${dateTime}</p>
           </div>
         `;
         container.insertAdjacentHTML("beforeend", card);
